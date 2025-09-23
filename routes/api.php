@@ -22,6 +22,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('event')->group(function () {
         Route::post('{id}/scan-attendance', [ApiScanEventController::class, 'scanAttendance']);
         Route::post('{id}/scan-identity', [ApiScanEventController::class, 'scanIdentityCheck']);
+        Route::post('{id}/update-attendees', [ApiEventController::class, 'updateAttendees']);
+        Route::get('{id}/attendees', [ApiEventController::class, 'getEventAttendees']);
         Route::get('{id}', [ApiEventController::class, 'getEventById']);
     });
 

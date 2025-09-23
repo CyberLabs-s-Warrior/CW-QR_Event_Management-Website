@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('event_id')->constrained('events')->cascadeOnDelete();
             // qrcodes relation in qrcode schema migration
             $table->enum('status', [
-                'present', 'absent', 'late'
+                'Present', 'Absent', 'Late', 
             ]);
             $table->dateTime('check_in_time')->nullable();
             $table->text('notes')->nullable();

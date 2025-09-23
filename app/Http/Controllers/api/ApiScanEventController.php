@@ -28,9 +28,7 @@ class ApiScanEventController extends Controller
             'qrcode_data' => 'required|string',
         ]);
 
-
-        
-          // Langsung return response dari service
+        // Langsung return response dari service
         return $this->attendanceService->scanAttendance($id, $request->qrcode_data, $request->user()->id);
     }
 
@@ -40,9 +38,7 @@ class ApiScanEventController extends Controller
             'qrcode_data' => 'required|string',
         ]);
 
-
-        
-          // Langsung return response dari service
+        // Langsung return response dari service
         return $this->attendanceService->scanIdentityCheck($id, $request->qrcode_data, $request->user()->id);
     }
 }

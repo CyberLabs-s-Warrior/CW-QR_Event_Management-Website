@@ -67,12 +67,37 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
+    public function getOngoingEventAttribute()
+    {
+        $ongoingEvents = $this->ongoingEvents;
+        $count = $ongoingEvents->count();
+
+        if ($count === 0) {
+            return "No Ongoing Event";
+        }
+
+        $firstEvent = $ongoingEvents->first();
+        return $count > 1
+            ? $firstEvent->title . " + " . ($count - 1) . " more"
+            : $firstEvent->title;
+    }
+
+    public function getOngoingCountAttribute()
+    {
+        return $this->ongoingEvents->count();
+    }
+
     public function doneEvents()
     {
         return $this->belongsToMany(Event::class, 'event_admins', 'user_id', 'event_id')
             ->with('eventCategory')
-            ->where('status', 'done')
-            // ->whereDate('end_date', '<=', now())->orderBy('start_date', 'desc')
+            ->where(function ($query) {
+                $query->where('status', 'done')
+                    ->orWhere(function ($q) {
+                        $q->where('status', 'active')
+                            ->whereDate('end_date', '<', now());
+                    });
+            })
             ->withTimestamps();
     }
 
@@ -105,15 +130,20 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
-    public function eventHistory()
-    {
-        return $this->belongsToMany(Event::class, 'event_admins', 'user_id', 'event_id')
-        ->where('status', 'done')
-            ->with('eventCategory')
-            ->orderBy('end_date', 'desc')
-            // ->whereDate('end_date', '<=', now())->orderBy('start_date', 'desc')
-            ->withTimestamps();
-    }
+  public function eventHistory()
+{
+    return $this->belongsToMany(Event::class, 'event_admins', 'user_id', 'event_id')
+        ->with('eventCategory')
+        ->where(function ($query) {
+            $query->where('status', 'done')
+                  ->orWhere(function ($q) {
+                      $q->where('status', 'active')
+                        ->whereDate('end_date', '<', now());
+                  });
+        })
+        ->orderBy('end_date', 'desc')
+        ->withTimestamps();
+}
 
     public function createdEvents()
     {

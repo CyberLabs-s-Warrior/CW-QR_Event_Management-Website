@@ -367,7 +367,6 @@ class EventRegistrationController extends Controller
                     // Dispatch job delete dengan delay 1 menit
                     dispatch(new DeleteQrJob($qrPath))
                         ->delay(now()->addMinute());
-
                 } catch (Exception $e) {
                     return response()->json([
                         'message' => 'Failed to send WhatsApp message',

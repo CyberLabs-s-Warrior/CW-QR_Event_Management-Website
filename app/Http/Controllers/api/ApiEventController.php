@@ -16,17 +16,16 @@ class ApiEventController extends Controller
     {
         $event = Event::with('createdBy', 'eventCategory', 'admins')->find($id);
 
+        $event->attendee_count = $event->countAttendees();
         $event->present_or_late_count = $event->countPresentOrLateAttendees();
         $event->absent_count = $event->countAbsentAttendees();
         if ($event->present_or_late_count + $event->absent_count > 0) {
             $event->attendance_percentage = number_format(($event->present_or_late_count / ($event->present_or_late_count + $event->absent_count)) * 100, 2, '.', '');
-            $event->attendance_percentage = floor($event->attendance_percentage / 10) * 10;
-            $event->attendance_percentage = number_format($event->attendance_percentage, 2, '.', '');
         } else {
             $event->attendance_percentage = number_format(0, 2, '.', '');
         }
 
-        $event->attendance_percentage = (double) $event->attendance_percentage;
+        $event->attendance_percentage = (float) $event->attendance_percentage;
 
         if (!$event) {
             return response()->json([
@@ -74,10 +73,12 @@ class ApiEventController extends Controller
 
         $events = $user->upcomingEvents()->get();
 
+
         return response()->json(
             [
                 'status' => 'success',
                 'message' => $events->isEmpty() ? 'No upcoming events found for this user' : 'Upcoming events retrieved successfully',
+
                 'meta' => ['count' => $events->count()],
                 'data' => EventResource::collection($events)
             ],
@@ -124,6 +125,9 @@ class ApiEventController extends Controller
 
         $events = $user->ongoingEvents()->get();
 
+        
+
+
         return response()->json(
             [
                 'status' => 'success',
@@ -135,6 +139,12 @@ class ApiEventController extends Controller
         );
     }
 
+    public function getEventAttendees(Request $request, $id)
+    {
+        $attendanceService = new \App\Services\AttendanceService();
+        return $attendanceService->getEventAttendees($id);
+    }
+
     public function getUserEventsSummary(Request $request)
     {
         try {
@@ -143,18 +153,21 @@ class ApiEventController extends Controller
             if (!$user) {
                 return response()->json([
                     'error' => 'User not found',
-                    'message' => 'Token autentikasi tidak valid atau telah kadaluarsa'
+                    'message' => 'Authentication token is invalid or has expired'
                 ], 401);
             }
 
             $events = $user->doneEvents->count();
             $upcomingEvents = $user->upcomingEvents->first();
+            $ongoingEvent = $user->ongoingEvents->first();
             $currentMonthCount = $user->currentMonthEvents->count();
 
             return response()->json([
                 'status' => 'success',
                 'past_count' => $events,
                 'upcoming_event' => $upcomingEvents ? $upcomingEvents->title : "No Upcoming Event",
+                'ongoing_event' => $user->getOngoingEventAttribute() ?? "No Ongoing Event",
+                'ongoing_count' => $user->getOngoingCountAttribute() ?? 0,
                 'current_month_count' => $currentMonthCount ?? 0
             ], 200);
         } catch (\Exception $e) {
@@ -279,4 +292,16 @@ class ApiEventController extends Controller
             ], 500);
         }
     }
+
+    public function updateAttendees(Request $request, $id)
+{
+    $request->validate([
+        'attendees' => 'required|array',
+        'attendees.*.id' => 'required|exists:attendees,id',
+        'attendees.*.status' => 'required|in:Present,Absent',
+    ]);
+    
+    $attendanceService = new \App\Services\AttendanceService();
+    return $attendanceService->updateAttendees($id, $request->attendees, $request->user()->id);
+}
 }

@@ -50,6 +50,12 @@ class Event extends Model
             ->count();
     }
 
+    public function countAttendees()
+    {
+        return $this->attendance()
+            ->count();
+    }
+
     public function attendance()
     {
         return $this->hasMany(Attendance::class);
