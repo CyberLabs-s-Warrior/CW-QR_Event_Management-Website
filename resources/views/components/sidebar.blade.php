@@ -8,6 +8,7 @@
             <img src="{{ asset('assets/images/logo-light.png') }}" alt="site logo" class="dark-logo">
             <img src="{{ asset('assets/images/logo-icon.png') }}" alt="site logo" class="logo-icon">
         </a>
+        
     </div>
     <div class="sidebar-menu-area">
         <ul class="sidebar-menu" id="sidebar-menu">
@@ -72,7 +73,7 @@
                 </ul>
             </li>
 
-            <li class="dropdown my-2">
+            {{-- <li class="dropdown my-2">
                 <a href="javascript:void(0)">
                     <iconify-icon icon="ix:history-list" class="menu-icon"></iconify-icon>
                     <span>Logs</span>
@@ -87,7 +88,7 @@
                             Qr Code Log</a>
                     </li>
                 </ul>
-            </li>
+            </li> --}}
         </ul>
     </div>
 </aside>
