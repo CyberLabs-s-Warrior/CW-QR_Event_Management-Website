@@ -117,6 +117,11 @@ Route::prefix('admin')->middleware(['auth', 'can:isSuperOrAdmin'])->group(functi
         'destroy' => 'admin.attendee.destroy',
     ])->except(['index']);
 
+    Route::get('/event/{event}/attendee/export-excel', [AttendeeController::class, 'exportExcel'])
+        ->name('admin.attendee.exportExcel');
+    Route::get('/event/{event}/attendee/export-pdf', [AttendeeController::class, 'exportPdf'])
+        ->name('admin.attendee.exportPdf');
+        
     // ========== ROUTE UNTUK TRASH ==========
     Route::prefix('trash')->name('admin.trash.')->group(function () {
         // --- hanya super_admin ---

@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Models\Attendee;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Exports\AttendeesExport;
 use Illuminate\Http\Request;
 
 class AttendeeController extends Controller
@@ -55,6 +58,30 @@ class AttendeeController extends Controller
         $event = $attendee->event;
 
         return view('admin.attendee.show', compact('attendee', 'attendance', 'event'));
+    }
+
+    public function exportExcel(Event $event)
+    {
+        $this->authorize('view', $event);
+
+        return Excel::download(
+            new AttendeesExport($event),
+            'daftar_peserta_event_' . str_replace(' ', '_', strtolower($event->title)) . '.xlsx'
+        );
+    }
+
+    public function exportPdf(Event $event)
+    {
+        $this->authorize('view', $event);
+
+        $pdf = Pdf::loadView('exports.attendees-pdf', [
+            'event' => $event,
+            'attendees' => $event->attendees()->with('attendance')->get(),
+        ])->setPaper('a4', 'landscape');
+
+        return $pdf->download(
+            'daftar_peserta_event_' . str_replace(' ', '_', strtolower($event->title)) . '.pdf'
+        );
     }
 
     public function destroy(Attendee $attendee)
