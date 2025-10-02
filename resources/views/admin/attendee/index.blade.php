@@ -14,10 +14,34 @@
         <div class="card basic-data-table">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">Daftar Attendee ({{ $event->title }})</h5>
-                <a href="{{ route('admin.event.show', $event->id) }}"
-                    class="w-32-px h-32-px bg-secondary text-white rounded-circle d-inline-flex align-items-center justify-content-center">
-                    <iconify-icon icon="lucide:arrow-left"></iconify-icon>
-                </a>
+                <div class="d-flex gap-2 align-items-center">
+                    <a href="{{ route('admin.event.show', $event->id) }}"
+                        class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" title="Kembali">
+                        <iconify-icon icon="lucide:arrow-left"></iconify-icon>
+                        <span>Kembali</span>
+                    </a>
+                    @if ($attendees->count() > 0)
+                        <a href="{{ route('admin.attendee.exportExcel', $event->id) }}"
+                            class="btn btn-outline-success btn-sm d-flex align-items-center gap-1">
+                            <iconify-icon icon="mdi:file-excel"></iconify-icon>
+                            <span>Excel</span>
+                        </a>
+                        <a href="{{ route('admin.attendee.exportPdf', $event->id) }}"
+                            class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1">
+                            <iconify-icon icon="mdi:file-pdf"></iconify-icon>
+                            <span>PDF</span>
+                        </a>
+                    @else
+                        <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" disabled>
+                            <iconify-icon icon="mdi:file-excel"></iconify-icon>
+                            <span>Excel</span>
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" disabled>
+                            <iconify-icon icon="mdi:file-pdf"></iconify-icon>
+                            <span>PDF</span>
+                        </button>
+                    @endif
+                </div>
             </div>
             <div class="card-body">
                 <div style="overflow-x: auto;">
@@ -46,9 +70,11 @@
                                     <td>
                                         <span
                                             class="@if ($attendee->attendance?->status === 'present') bg-success-focus text-success-600
-                                               @elseif ($attendee->attendance?->status === 'absent') bg-danger-focus text-danger-600
-                                               @else bg-secondary text-secondary-600 @endif
-                                               px-16 py-6 rounded-pill fw-semibold text-xs">
+                                                    @elseif ($attendee->attendance?->status === 'absent') bg-danger-focus text-danger-600
+                                                    @elseif ($attendee->attendance?->status === 'late') bg-warning-focus text-warning-600
+                                                    @else bg-secondary text-secondary-600 @endif
+                                                    px-16 py-6 rounded-pill fw-semibold text-xs d-inline-block text-center"
+                                            style="min-width: 80px;">
                                             {{ ucfirst($attendee->attendance->status ?? 'pending') }}
                                         </span>
                                     </td>
@@ -73,10 +99,9 @@
 
                                         {{-- hanya boleh delete kalau boleh delete event --}}
                                         @can('delete', $event)
-                                            @if ($event->status === 'done' || $event->status === 'cancelled' || auth()->user()->role==='super_admin')
+                                            @if ($event->status === 'done' || $event->status === 'cancelled' || auth()->user()->role === 'super_admin')
                                                 <form action="{{ route('admin.attendee.destroy', $attendee->id) }}"
-                                                    method="POST"
-                                                    class="d-inline">
+                                                    method="POST" class="d-inline">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit"
@@ -105,7 +130,9 @@
 @section('beforeAppScripts')
     <script>
         let table = new DataTable('#dataTable', {
-            order: [[0, 'desc']] 
+            order: [
+                [0, 'desc']
+            ]
         });
     </script>
 @endsection
