@@ -67,12 +67,12 @@ class AttendanceService
       ->first();
 
     if (!$qrCode) {
-      // Log invalid scan attempt
+      // Log Invalid scan attempt
       QRCodeLog::create([
         'qr_code_id' => null,
         'attendee_id' => null,
         'user_id' => $userId,
-        'status' => 'invalid',
+        'status' => 'Invalid',
       ]);
 
       return response()->json([
@@ -93,7 +93,7 @@ class AttendanceService
 
     if ($existingAttendance) {
       /**
-       * Logs an attempt to re-scan a previously scanned event.
+       * Logs an attempt to re-scan a previously Scanned event.
        * Useful for tracking duplicate scan attempts and auditing user actions.
        */
       // Log attempted re-scan
@@ -122,12 +122,12 @@ class AttendanceService
      */
     // If QR code doesn't exist or doesn't match event
     if (!$qrCode) {
-      // Log invalid scan attempt
+      // Log Invalid scan attempt
       QRCodeLog::create([
         'qr_code_id' => null,
         'attendee_id' => null,
         'user_id' => $userId,
-        'status' => 'invalid',
+        'status' => 'Invalid',
       ]);
 
       return response()->json([
@@ -137,7 +137,7 @@ class AttendanceService
     }
 
     /**
-     * Verifies whether the scanned QR code has expired.
+     * Verifies whether the Scanned QR code has expired.
      * This check ensures that only valid, non-expired QR codes are processed for event access.
      * If the QR code is expired, appropriate handling or error response should be triggered.
      */
@@ -147,7 +147,7 @@ class AttendanceService
         'qr_code_id' => $qrCode->id,
         'attendee_id' => $qrCode->attendee_id,
         'user_id' => $userId,
-        'status' => 'invalid',
+        'status' => 'Invalid',
       ]);
 
       return response()->json([
@@ -158,7 +158,7 @@ class AttendanceService
 
     /**
      * Retrieves the attendee information associated with the provided QR code.
-     * This method is used to identify and fetch the attendee details based on the scanned QR code data.
+     * This method is used to identify and fetch the attendee details based on the Scanned QR code data.
      * Typically called during event check-in to verify attendee registration.
      */
     // Get the attendee associated with this QR code
@@ -178,7 +178,7 @@ class AttendanceService
         'qr_code_id' => $qrCode->id,
         'attendee_id' => $attendee->id,
         'user_id' => $userId,
-        'status' => 'invalid',
+        'status' => 'Invalid',
       ]);
 
       return response()->json([
@@ -195,7 +195,7 @@ class AttendanceService
         'qr_code_id' => $qrCode->id,
         'attendee_id' => $attendee->id,
         'user_id' => $userId,
-        'status' => 'scanned',
+        'status' => 'Scanned',
       ]);
 
       $isLate = Carbon::now()->greaterThan($event->start_date->copy()->addMinutes($event->start_date->diffInMinutes($event->end_date) * 0.95)) ? true : false;
@@ -217,7 +217,7 @@ class AttendanceService
           'event_id' => $eventId,
         ],
         [
-          // event is considered 'Late' if scanned after 95% of event duration has passed
+          // event is considered 'Late' if Scanned after 95% of event duration has passed
           'status' => Carbon::now()->greaterThan($event->start_date->copy()->addMinutes($event->start_date->diffInMinutes($event->end_date) * 0.95)) ? 'Late' : 'Present',
           'check_in_time' => Carbon::now(),
         ]
@@ -245,31 +245,27 @@ class AttendanceService
 
   public function scanIdentityCheck($eventId, $qrcodeData, $userId)
   {
-    // Get the event
-    $event = Event::findOrFail($eventId);
 
-    // Find the QR code in database
-    $qrCode = QRCode::where('qrcode_data', $qrcodeData)
-      ->where('event_id', $eventId)
-      ->first();
+    // Find the QR code in database without restricting to an event
+    $qrCode = QRCode::where('qrcode_data', $qrcodeData)->first();
 
-    // If QR code doesn't exist or doesn't match event
+    // If QR code doesn't exist
     if (!$qrCode) {
-      // Log invalid scan attempt in QRCodeLog
+      // Log Invalid scan attempt in QRCodeLog
       QRCodeLog::create([
         'qr_code_id' => null,
         'attendee_id' => null,
         'user_id' => $userId,
-        'status' => 'invalid',
+        'status' => 'Invalid',
       ]);
 
       // Log in UserLog
       UserLog::create([
         'user_id' => $userId,
-        'action' => "Identity Check Invalid QR for Event ID $eventId with QR Code $qrcodeData",
+        'action' => "Identity Check Invalid QR Code: $qrcodeData",
         'ip_address' => request()->ip(),
         'device_info' => request()->userAgent(),
-        'status' => 'failed',
+        'status' => 'Failed',
       ]);
 
       return response()->json([
@@ -285,16 +281,16 @@ class AttendanceService
         'qr_code_id' => $qrCode->id,
         'attendee_id' => $qrCode->attendee_id,
         'user_id' => $userId,
-        'status' => 'invalid',
+        'status' => 'Invalid',
       ]);
 
       // Log in UserLog
       UserLog::create([
         'user_id' => $userId,
-        'action' => "Identity Check Expired QR for Event ID $eventId with QR Code $qrcodeData",
+        'action' => "Identity Check Expired QR Code: $qrcodeData",
         'ip_address' => request()->ip(),
         'device_info' => request()->userAgent(),
-        'status' => 'failed',
+        'status' => 'Failed',
       ]);
 
       return response()->json([
@@ -306,60 +302,44 @@ class AttendanceService
     // Get the attendee associated with this QR code
     $attendee = $qrCode->attendee;
 
-    // Verify that the attendee is registered for this specific event
-    if ($attendee->event_id != $eventId) {
-      // Log wrong event attempt
-      QRCodeLog::create([
-        'qr_code_id' => $qrCode->id,
-        'attendee_id' => $attendee->id,
-        'user_id' => $userId,
-        'status' => 'invalid',
-      ]);
-
-      // Log in UserLog
-      UserLog::create([
-        'user_id' => $userId,
-        'action' => "Identity Check Wrong Event for Event ID $eventId with QR Code $qrcodeData",
-        'ip_address' => request()->ip(),
-        'device_info' => request()->userAgent(),
-        'status' => 'failed',
-      ]);
-
+    if (!$attendee) {
       return response()->json([
         'success' => false,
-        'message' => 'Attendee not registered for this event',
+        'message' => 'No attendee associated with this QR code',
       ], 400);
     }
 
-    // Get attendance record (if exists)
-    $attendance = Attendance::where('attendee_id', $attendee->id)
-      ->where('event_id', $eventId)
-      ->first();
+    // Get the event associated with this attendee
+    $event = Event::with('createdBy', 'eventCategory')->find($attendee->event_id);
+
+    // Get all attendance records for this attendee
+    $attendances = Attendance::where('attendee_id', $attendee->id)->with('event')->get();
 
     // Log successful identity check in QRCodeLog
     QRCodeLog::create([
       'qr_code_id' => $qrCode->id,
       'attendee_id' => $attendee->id,
       'user_id' => $userId,
-      'status' => 'scanned',
+      'status' => 'Scanned',
     ]);
 
     // Log in UserLog
     UserLog::create([
       'user_id' => $userId,
-      'action' => "Checked identity for attendee ID {$attendee->id} at event ID {$eventId}",
+      'action' => "Checked identity for attendee ID {$attendee->id} from QR code $qrcodeData",
       'ip_address' => request()->ip(),
       'device_info' => request()->userAgent(),
       'status' => 'success',
     ]);
 
-    // Return attendee and attendance data (without creating/updating anything)
+    // Return comprehensive attendee data
     return response()->json([
       'success' => true,
       'message' => 'Identity verified successfully',
       'data' => [
         'attendee' => $attendee,
-        'attendance' => $attendance,
+        'primary_event' => $event,
+        'attendances' => $attendances[0],
         'qr_code' => $qrCode,
       ],
     ], 200);
@@ -449,7 +429,7 @@ class AttendanceService
         'action' => "Failed to update attendees for event ID {$eventId}: {$e->getMessage()}",
         'ip_address' => request()->ip(),
         'device_info' => request()->userAgent(),
-        'status' => 'failed',
+        'status' => 'Failed',
       ]);
 
       return response()->json([
