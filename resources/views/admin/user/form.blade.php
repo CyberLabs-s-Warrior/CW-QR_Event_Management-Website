@@ -9,6 +9,8 @@
             <x-slot:icon>solar:shield-user-broken</x-slot:icon>
         </x-breadcrumb>
 
+       @include('layouts.feedback')
+
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header">
@@ -75,14 +77,21 @@
                         <div class="col-md-6">
                             <label class="form-label">Role</label>
                             <div class="icon-field has-validation" style="position: relative;">
-                                <span class="icon" style="position: absolute; left: 2px; top: 50%; transform: translateY(-50%);">
+                                <span class="icon"
+                                    style="position: absolute; left: 2px; top: 50%; transform: translateY(-50%);">
                                     <iconify-icon icon="oui:app-users-roles"></iconify-icon>
                                 </span>
                                 <select name="role" class="form-select" style="padding-left: 40px;" required>
                                     <option value="" class="">Pilih Role</option>
-                                    <option value="super_admin"
-                                        {{ old('role', $user->role) == 'super_admin' ? 'selected' : '' }}>Super Admin
-                                    </option>
+                                    @if (auth()->user()->id !== 1)
+                                        <option value="super_admin" disabled
+                                            {{ old('role', $user->role) == 'super_admin' ? 'selected' : '' }}>Super Admin
+                                        </option>
+                                    @else
+                                        <option value="super_admin"
+                                            {{ old('role', $user->role) == 'super_admin' ? 'selected' : '' }}>Super Admin
+                                        </option>
+                                    @endif
                                     <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>
                                         Admin
                                     </option>

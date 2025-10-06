@@ -9,6 +9,8 @@
             <x-slot:icon>solar:calendar-broken</x-slot:icon>
         </x-breadcrumb>
 
+        @include('layouts.feedback')
+
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">Detail Event: {{ $event->title }}</h5>
@@ -33,37 +35,37 @@
             <div class="card-body">
                 <div class="row g-4">
                     <div class="col-md-6">
-                        <label class="fw-semibold text-muted">Judul</label>
+                        <label class="fw-semibold ">Judul</label>
                         <p class="mb-0">{{ $event->title }}</p>
                     </div>
                     <div class="col-md-6">
-                        <label class="fw-semibold text-muted">Kategori</label>
+                        <label class="fw-semibold">Kategori</label>
                         <p class="mb-0">{{ $event->eventCategory->name ?? '-' }}</p>
                     </div>
 
                     <div class="col-md-6">
-                        <label class="fw-semibold text-muted">Start Date</label>
+                        <label class="fw-semibold ">Start Date</label>
                         <p class="mb-0">{{ \Carbon\Carbon::parse($event->start_date)->translatedFormat('l, d F Y H:i') }}
                         </p>
                     </div>
 
                     <div class="col-md-6">
-                        <label class="fw-semibold text-muted">End Date</label>
+                        <label class="fw-semibold ">End Date</label>
                         <p class="mb-0">{{ \Carbon\Carbon::parse($event->end_date)->translatedFormat('l, d F Y H:i') }}
                         </p>
                     </div>
 
                     <div class="col-md-6">
-                        <label class="fw-semibold text-muted">Lokasi</label>
+                        <label class="fw-semibold ">Lokasi</label>
                         <p class="mb-0">{{ $event->location }}</p>
                     </div>
 
                     <div class="col-md-6">
-                        <label class="fw-semibold text-muted">Dibuat Oleh</label>
+                        <label class="fw-semibold ">Dibuat Oleh</label>
                         <p class="mb-0">{{ $event->createdBy->name ?? '-' }}</p>
                     </div>
                     <div class="col-md-6">
-                        <label class="fw-semibold text-muted">Status</label>
+                        <label class="fw-semibold ">Status</label>
                         <p class="mb-0">
                             <span
                                 class="@if ($event->status === 'active') bg-success-focus text-success-600
@@ -78,7 +80,7 @@
 
                     {{-- Registration Link --}}
                     <div class="col-md-6">
-                        <label class="fw-semibold text-muted">Registration Link</label>
+                        <label class="fw-semibold ">Registration Link</label>
                         <div class="d-flex align-items-center justify-content-between">
                             <p class="mb-0">{{ $event->registrationLink->link ?? '-' }}</p>
                             <div class="d-flex align-items-center gap-2">
@@ -101,7 +103,7 @@
 
                     {{-- Attendee list: semua admin bisa lihat --}}
                     <div class="col-md-6">
-                        <label class="fw-semibold text-muted">Daftar Attendee</label>
+                        <label class="fw-semibold ">Daftar Attendee</label>
                         <div class="d-flex align-items-center justify-content-between">
                             @can('view', $event)
                                 <a href="{{ route('admin.attendee.index', $event->id) }}" type="button"
@@ -113,7 +115,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label class="fw-semibold text-muted">Form Link</label>
+                        <label class="fw-semibold ">Form Link</label>
                         <div class="d-flex align-items-center justify-content-between gap-3">
                             <a href="{{ route('registration.form', ['link' => $event->registrationLink->link]) }}"
                                 target="_blank" class="text-primary-600 text-decoration-underline">
@@ -144,18 +146,18 @@
                     </div>
 
                     <div class="col-md-12">
-                        <label class="fw-semibold text-muted">Deskripsi</label>
-                        <div class="border rounded p-3 bg-light">{{ $event->description }}</div>
+                        <label class="fw-semibold ">Deskripsi</label>
+                        <div class="border rounded p-3 bg-dark text-white ">{{ $event->description }}</div>
                     </div>
 
                     <div class="col-md-6">
-                        <label class="fw-semibold text-muted">Banner</label><br>
+                        <label class="fw-semibold ">Banner</label><br>
                         @if ($event->banner)
                             <img src="{{ asset('storage/' . $event->banner) }}" alt="Banner"
                                 class="rounded shadow-sm img-fluid mt-2 clickable-image"
                                 style="max-height: 200px; cursor: zoom-in;">
                         @else
-                            <p class="text-muted">Tidak ada banner</p>
+                            <p class="">Tidak ada banner</p>
                         @endif
                     </div>
 
@@ -165,7 +167,7 @@
                     @endphp
 
                     <div class="col-md-6">
-                        <label class="fw-semibold text-muted">Administrator</label>
+                        <label class="fw-semibold ">Administrator</label>
                         @if ($totalAdmins > 0)
                             <div class="d-flex flex-wrap gap-2 mt-2" style="max-width: 100%;">
                                 @foreach ($event->admins->take($maxAdmins) as $admin)
@@ -185,12 +187,12 @@
                                 @endif
                             </div>
                         @else
-                            <p class="text-muted mt-2">Tidak ada Administrator</p>
+                            <p class=" mt-2">Tidak ada Administrator</p>
                         @endif
                     </div>
 
                     <div class="col-md-12">
-                        <label class="fw-semibold text-muted">Foto Tambahan</label><br>
+                        <label class="fw-semibold ">Foto Tambahan</label><br>
                         @if ($event->eventPhotos && $event->eventPhotos->count())
                             <div class="d-flex flex-wrap gap-2 mt-2">
                                 @foreach ($event->eventPhotos as $photo)
@@ -200,12 +202,12 @@
                                 @endforeach
                             </div>
                         @else
-                            <p class="text-muted mt-2">Tidak ada foto tambahan</p>
+                            <p class=" mt-2">Tidak ada foto tambahan</p>
                         @endif
                     </div>
 
                     <div class="col-md-12">
-                        <label class="fw-semibold text-muted">QR Logo</label><br>
+                        <label class="fw-semibold ">QR Logo</label><br>
                         @if ($event->qr_logo)
                             <div class="d-flex flex-wrap gap-2 mt-2">
                                 <img src="{{ asset('storage/' . $event->qr_logo) }}" alt="QR Logo"
@@ -213,7 +215,7 @@
                                     style="height: 100px; width: 100px; object-fit: cover; cursor: zoom-in;">
                             </div>
                         @else
-                            <p class="text-muted mt-2">Tidak ada QR Logo</p>
+                            <p class=" mt-2">Tidak ada QR Logo</p>
                         @endif
                     </div>
                 </div>
