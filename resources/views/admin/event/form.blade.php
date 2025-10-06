@@ -9,6 +9,8 @@
             <x-slot:icon>solar:calendar-add-broken</x-slot:icon>
         </x-breadcrumb>
 
+        @include('layouts.feedback')
+
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header">

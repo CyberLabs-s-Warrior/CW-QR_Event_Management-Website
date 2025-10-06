@@ -32,7 +32,7 @@
         </svg>
 
         <h1 class="text-5xl font-extrabold text-gray-800 tracking-tight">
-            Pendaftaran Ditutup
+            {{ isset($event) ? 'Pendaftaran Ditutup' : 'Event Tidak Ditemukan' }}
         </h1>
 
         <p class="mt-6 text-lg text-gray-600 leading-relaxed">

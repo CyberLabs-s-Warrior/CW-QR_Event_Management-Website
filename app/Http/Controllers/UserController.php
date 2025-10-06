@@ -8,6 +8,24 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
+    protected function canCreateSuperAdmin(Request $request)
+    {
+        $currentUser = auth()->user();
+        $selectedOption = $request->input('role');
+
+        if ($currentUser->role === 'super_admin' && $selectedOption === 'super_admin') {
+            if ($currentUser->id === 1) {
+                // Super Admin pertama boleh membuat super_admin baru
+                return true;
+            } else {
+                // Super Admin biasa tidak boleh membuat super_admin baru
+                return false;
+            }
+        }
+        // Untuk role lain, tidak ada pembatasan khusus
+        return true;
+    }
+
     public function index()
     {
         $this->authorize('isSuperOrAdmin');
@@ -16,14 +34,16 @@ class UserController extends Controller
 
         if ($currentUser->role === 'super_admin') {
             if ($currentUser->id === 1) {
-                // Super Admin pertama: lihat semua user
-                $users = User::orderBy('created_at', 'desc')->get();
+                // Super Admin pertama: lihat semua user kecuali dirinya sendiri
+                $users = User::where('id', '!=', $currentUser->id)
+                    ->orderBy('created_at', 'asc')
+                    ->get();
             } else {
-                // Super Admin biasa: lihat admin + dirinya sendiri
-                $users = User::where(function ($query) use ($currentUser) {
-                    $query->where('role', 'admin') // semua admin
-                        ->orWhere('id', $currentUser->id); // dirinya sendiri
-                })->orderBy('created_at', 'desc')->get();
+                // Super Admin biasa: lihat admin saja (tanpa dirinya sendiri)
+                $users = User::where('role', 'admin')
+                    ->where('id', '!=', $currentUser->id)
+                    ->orderBy('created_at', 'asc')
+                    ->get();
             }
         } else {
             // Admin biasa atau user lain (tidak punya akses)
@@ -51,6 +71,10 @@ class UserController extends Controller
             'password' => 'required|min:6|confirmed',
         ]);
 
+        if (!$this->canCreateSuperAdmin($request)) {
+            return back()->withErrors(['create_role' => 'Hanya super admin pertama (pemilik sistem) yang dapat membuat super admin lain.'])->withInput();
+        }
+
         User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -66,6 +90,8 @@ class UserController extends Controller
     {
         $currentUser = auth()->user();
         $user = User::findOrFail($id);
+
+
 
         // Cek permission super admin
         if ($currentUser->role === 'super_admin' && $currentUser->id !== 1) {
@@ -84,6 +110,10 @@ class UserController extends Controller
     {
         $currentUser = auth()->user();
         $user = User::findOrFail($id);
+
+        if (!$this->canCreateSuperAdmin($request)) {
+            return back()->withErrors(['create_role' => 'Hanya super admin pertama (pemilik sistem) yang dapat membuat super admin lain.'])->withInput();
+        }
 
         // Cek permission super admin
         if ($currentUser->role === 'super_admin' && $currentUser->id !== 1) {
@@ -116,7 +146,7 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         // Cek permission super admin
-        if ($currentUser->role === 'super_admin' && $currentUser->id !== 1) {
+        if ($currentUser->role === 'super_admin' && $currentUser->id !== 1 && $currentUser->id !== $id) {
             if ($user->role === 'super_admin' && $user->id !== $currentUser->id) {
                 abort(403, 'Unauthorized');
             }

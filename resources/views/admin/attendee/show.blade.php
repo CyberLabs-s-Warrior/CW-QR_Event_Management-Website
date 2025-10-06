@@ -9,6 +9,8 @@
         <x-slot:icon>solar:user-broken</x-slot:icon>
     </x-breadcrumb>
 
+    
+
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="card-title mb-0">Detail Attendee: {{ $attendee->first_name }} {{ $attendee->last_name }}</h5>
@@ -36,36 +38,36 @@
         <div class="card-body">
             <div class="row g-4">
                 <div class="col-md-6">
-                    <label class="fw-semibold text-muted">Full Name</label>
+                    <label class="fw-semibold ">Full Name</label>
                     <p class="mb-0">{{ $attendee->first_name }} {{ $attendee->last_name }}</p>
                 </div>
 
                 <div class="col-md-6">
-                    <label class="fw-semibold text-muted">Event</label>
+                    <label class="fw-semibold ">Event</label>
                     <p class="mb-0">{{ $attendee->event->title ?? '-' }}</p>
                 </div>
 
                 <div class="col-md-6">
-                    <label class="fw-semibold text-muted">Phone Number</label>
+                    <label class="fw-semibold ">Phone Number</label>
                     <p class="mb-0">{{ $attendee->phone_number ?? '-' }}</p>
                 </div>
 
                 <div class="col-md-6">
-                    <label class="fw-semibold text-muted">Email</label>
+                    <label class="fw-semibold ">Email</label>
                     <p class="mb-0">{{ $attendee->email ?? '-' }}</p>
                 </div>
 
                 <div class="col-md-6">
-                    <label class="fw-semibold text-muted">Dokumen</label>
+                    <label class="fw-semibold ">Dokumen</label>
                     @if($attendee->document)
                         <a href="{{ asset('storage/'.$attendee->document) }}" target="_blank" class="text-primary text-decoration-underline">Lihat Dokumen</a>
                     @else
-                        <p class="mb-0 text-muted">Tidak ada dokumen</p>
+                        <p class="mb-0 ">Tidak ada dokumen</p>
                     @endif
                 </div>
 
                 <div class="col-md-6">
-                    <label class="fw-semibold text-muted">Attendance</label>
+                    <label class="fw-semibold ">Attendance</label>
                     @if($attendance)
                         <p class="mb-0">
                             Status:
@@ -79,14 +81,14 @@
                             Notes: {{ $attendance->notes ?? '-' }}
                         </p>
                     @else
-                        <p class="mb-0 text-muted">Belum ada absensi</p>
+                        <p class="mb-0 ">Belum ada absensi</p>
                     @endif
                 </div>
 
                 @if($attendee->customInputs->count())
                     <div class="col-md-12">
-                        <label class="fw-semibold text-muted">Custom Input</label>
-                        <div class="border rounded p-3 bg-light">
+                        <label class="fw-semibold mb-10">Custom Input</label>
+                        <div class="border rounded p-3 bg-dark text-white">
                             @foreach($attendee->customInputs as $input)
                                 <p class="mb-1"><strong>{{ $input->name }}:</strong> {{ $input->value }}</p>
                             @endforeach

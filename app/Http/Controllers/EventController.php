@@ -285,17 +285,18 @@ class EventController extends Controller
             }
         }
 
-        // Kalau event punya registration link
-        if ($event->registrationLink) {
-            // Kalau admin tidak isi manual di modal, set default ke H-1 start_date
-            if (!$request->has('valid_until') || empty($request->valid_until)) {
-                $event->registrationLink->update([
-                    'valid_until' => Carbon::parse($event->start_date)->subDay()->endOfDay(),
-                ]);
-            }
-        }
+        //! KESALAHAN logika di bawah ini, karena valid_until harusnya di-handle di update link, bukan di update event
+        // // Kalau event punya registration link
+        // if ($event->registrationLink) {
+        //     // Kalau admin tidak isi manual di modal, set default ke H-1 start_date
+        //     if (!$request->has('valid_until') || empty($request->valid_until)) {
+        //         $event->registrationLink->update([
+        //             'valid_until' => Carbon::parse($event->start_date)->subDay()->endOfDay(),
+        //         ]);
+        //     }
+        // }
 
-        return redirect()->route('admin.event.index')->with('success', 'Event berhasil diperbarui.');
+        return redirect()->route('admin.event.show', $event->id)->with('success', 'Event berhasil diperbarui.');
     }
     public function updateRegistrationLink(Request $request, $id)
     {

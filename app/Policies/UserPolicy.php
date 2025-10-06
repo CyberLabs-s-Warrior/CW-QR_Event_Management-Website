@@ -15,5 +15,9 @@ class UserPolicy
     {
         return $user->role === 'super_admin';
     }
-}
 
+    public function isSuperOrAdmin(User $user): bool
+    {
+        return in_array($user->role, ['super_admin', 'admin']) || $user->id === 1;
+    }
+}
