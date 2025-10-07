@@ -16,7 +16,7 @@ class UserLog extends Model
         'action',
         'ip_address',
         'device_info',
-        'status'
+        'status',
     ];
 
     public function user() {

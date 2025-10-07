@@ -16,16 +16,16 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UserSeeder::class,
             EventCategorySeeder::class,
-            // EventSeeder::class,
-            // AttendeeSeeder::class,
-            // AttendanceSeeder::class,
-            // EventAdminSeeder::class,
-            // QRCodeSeeder::class,
-            // QRCodeLogSeeder::class,
+            EventSeeder::class,
+            AttendeeSeeder::class,
+            AttendanceSeeder::class,
+            EventAdminSeeder::class,
+            QRCodeSeeder::class,
+            QRCodeLogSeeder::class,
             // EventDetailSeeder::class,
             // EventPhotoSeeder::class,
             // EventRegistrationLinkSeeder::class,
-            // UserLogSeeder::class,
+            UserLogSeeder::class,
         ]);
     }
 

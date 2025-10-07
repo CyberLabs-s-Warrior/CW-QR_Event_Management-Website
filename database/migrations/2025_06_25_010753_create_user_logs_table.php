@@ -21,6 +21,7 @@ return new class extends Migration
                 'success',
                 'failed',
             ]);
+            $table->softDeletes();
             $table->timestamps();
         });
     }

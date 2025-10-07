@@ -8,25 +8,29 @@ use App\Http\Controllers\EventCategoryController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\EventRegistrationController;
 use App\Http\Controllers\AttendeeController;
+use App\Http\Controllers\LogsController;
 use App\Http\Controllers\TrashController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 
 // ========== ROUTE UNTUK AUTHENTICATION ==========
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login.form');
-Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login.form');
+    Route::post('/login', [AuthController::class, 'login'])->name('login');
+
+    // Forgot Password + OTP
+    Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('password.request');
+    Route::post('/forgot-password', [AuthController::class, 'sendResetCode'])->name('password.sendCode');
+
+    Route::get('/verify-code', [AuthController::class, 'showVerifyCodeForm'])->name('password.verify.form');
+    Route::post('/verify-code', [AuthController::class, 'verifyCode'])->name('password.verify');
+
+    Route::get('/reset-password', [AuthController::class, 'showResetPasswordForm'])->name('password.reset.form');
+    Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.reset');
+});
+
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-// Forgot Password + OTP
-Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('password.request');
-Route::post('/forgot-password', [AuthController::class, 'sendResetCode'])->name('password.sendCode');
-
-Route::get('/verify-code', [AuthController::class, 'showVerifyCodeForm'])->name('password.verify.form');
-Route::post('/verify-code', [AuthController::class, 'verifyCode'])->name('password.verify');
-
-Route::get('/reset-password', [AuthController::class, 'showResetPasswordForm'])->name('password.reset.form');
-Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.reset');
 
 // ========== ROUTE UNTUK PESERTA ==========
 Route::get('/event/{link}', [EventRegistrationController::class, 'showForm'])->name('registration.form');
@@ -116,6 +120,7 @@ Route::prefix('admin')->middleware(['auth', 'can:isSuperOrAdmin'])->group(functi
         'update' => 'admin.attendee.update',
         'destroy' => 'admin.attendee.destroy',
     ])->except(['index']);
+   
 
     Route::get('/event/{event}/attendee/export-excel', [AttendeeController::class, 'exportExcel'])
         ->name('admin.attendee.exportExcel');
@@ -129,6 +134,25 @@ Route::prefix('admin')->middleware(['auth', 'can:isSuperOrAdmin'])->group(functi
             Route::get('events', [TrashController::class, 'events'])->name('events');
             Route::get('categories', [TrashController::class, 'categories'])->name('categories');
             Route::get('users', [TrashController::class, 'users'])->name('users');
+        });
+
+        // --- super_admin + admin (khusus attendees) ---
+        Route::prefix('attendees')->name('attendees.')->group(function () {
+            Route::get('/', [TrashController::class, 'attendeesIndex'])->name('index'); // list event yg punya attendee terhapus
+            Route::get('{event}', [TrashController::class, 'attendeesShow'])->name('show'); // list attendees per event
+        });
+
+        // Aksi umum restore / force delete
+        Route::post('{type}/{id}/restore', [TrashController::class, 'restore'])->name('restore');
+        Route::delete('{type}/{id}/force-delete', [TrashController::class, 'forceDelete'])->name('forceDelete');
+    });
+
+    // ========== ROUTE UNTUK LOGS ==========
+    Route::prefix('logs')->name('admin.logs.')->group(function () {
+        // --- hanya super_admin ---
+        Route::middleware('can:isSuperAdmin')->group(function () {
+            Route::get('qr-logs', [LogsController::class, 'qrLogs'])->name('qr');
+            Route::get('users', [LogsController::class, 'userLog'])->name('users');
         });
 
         // --- super_admin + admin (khusus attendees) ---

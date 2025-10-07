@@ -80,11 +80,11 @@
                 </a>
                 <ul class="sidebar-submenu">
                     <li>
-                        <a href="#"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i>
+                        <a href="{{ route('admin.logs.users') }}"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i>
                             User Log</a>
                     </li>
                     <li>
-                        <a href="#"><i class="ri-circle-fill circle-icon text-secondary-600 w-auto"></i>
+                        <a href="{{ route('admin.logs.qr') }}"><i class="ri-circle-fill circle-icon text-secondary-600 w-auto"></i>
                             Qr Code Log</a>
                     </li>
                 </ul>
